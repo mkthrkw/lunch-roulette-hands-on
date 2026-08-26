@@ -4,11 +4,14 @@
 
 ## 1. 全体方針
 
-- ビルドツールを使わず、ブラウザがそのまま解釈できる ES Modules 構成の
-  HTML/CSS/JavaScriptのみで実装する（T-1〜T-3）。
+- ビルドツールを使わず、ブラウザがそのまま解釈できるHTML/CSS/JavaScriptのみで
+  実装する（T-1〜T-3）。`index.html` を `file://` で直接開いても動作すること
+  （T-6）を満たすため、ES Modules（`import`/`export`）は使わず、通常の
+  `<script>` として読み込む構成にする（ES Modulesはブラウザの仕様上、
+  `file://` からのimportがCORS制限でブロックされるため）。
 - ルーレットはCanvasを使わず、CSSの `conic-gradient` と `transform: rotate()` で表現する（T-2）。
 - テスト対象のロジック（候補操作・ランダム選出・回転角計算）はDOM操作から独立した
-  純粋関数として切り出し、Vitestで直接importしてテストできるようにする（T-4, T-5）。
+  純粋関数として切り出し、Vitestで直接読み込んでテストできるようにする（T-4, T-5）。
 - UI描画・イベント処理（DOM操作）とロジックを別ファイルに分離し、責務を明確にする。
 
 ## 2. ファイル構成
@@ -19,7 +22,7 @@ css/
   style.css
 js/
   roulette-logic.js   … 純粋ロジック（DOM非依存、テスト対象）
-  main.js             … DOM描画・イベント処理（ロジックをimportして利用）
+  main.js             … DOM描画・イベント処理（RouletteLogicを参照して利用）
 tests/
   roulette-logic.test.js
 package.json          … devDependency: vitest
@@ -28,9 +31,13 @@ docs/
   design.md
 ```
 
-`roulette-logic.js` はブラウザからは `<script type="module">` 経由で `main.js` に
-importされ、テストからは Vitest が直接importする。同じファイルを両方から参照することで、
-実装とテストの二重管理を避ける。
+`roulette-logic.js` はimport/exportを使わない通常の`<script>`として実装し、
+公開する関数・定数は `globalThis.RouletteLogic` にまとめて載せる。ブラウザでは
+`index.html` が `roulette-logic.js` → `main.js` の順に`<script>`タグで読み込み、
+`main.js` は `RouletteLogic.xxx` として参照する。Vitestからは
+`import "../js/roulette-logic.js"` で副作用として読み込み、
+`globalThis.RouletteLogic` から同じ関数を取り出してテストする。
+同じファイルを両方から参照することで、実装とテストの二重管理を避ける。
 
 ## 3. 画面構成・レイアウト（L-1, L-2, D-1〜D-9）
 
@@ -148,8 +155,8 @@ SPIN処理では、手順①で選ばれた`targetIndex`を最終的な結果表
 
 ## 9. テスト設計（Vitest）
 
-`tests/roulette-logic.test.js` から `js/roulette-logic.js` を直接importし、
-DOMを介さずロジックのみを検証する。
+`tests/roulette-logic.test.js` から `js/roulette-logic.js` を読み込み、
+`globalThis.RouletteLogic` 経由でDOMを介さずロジックのみを検証する。
 
 | テストケース | 内容 | 対応要件 |
 |-------------|------|---------|

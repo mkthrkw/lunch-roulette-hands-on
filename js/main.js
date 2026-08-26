@@ -1,4 +1,6 @@
-import {
+// roulette-logic.js が通常の<script>として先に読み込まれ、
+// globalThis.RouletteLogicに公開APIを積んでいる前提で参照する（file://対応のためimportは使わない）。
+const {
   DEFAULT_CANDIDATES,
   addCandidate,
   canRemove,
@@ -6,7 +8,7 @@ import {
   pickRandomIndex,
   getSegmentAngle,
   computeSpinRotation,
-} from "./roulette-logic.js";
+} = RouletteLogic;
 
 const PALETTE = [
   "#ffd3b6",

@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import {
+
+// roulette-logic.js はfile://での読み込みに対応するためimport/exportを使わない
+// 通常のスクリプトなので、副作用としてロードしglobalThis.RouletteLogicから取り出す。
+import "../js/roulette-logic.js";
+
+const {
   DEFAULT_CANDIDATES,
   MIN_CANDIDATES,
   EXTRA_SPIN_TURNS,
@@ -9,7 +14,7 @@ import {
   pickRandomIndex,
   computeSpinRotation,
   getIndexAtRotation,
-} from "../js/roulette-logic.js";
+} = globalThis.RouletteLogic;
 
 describe("pickRandomIndex (TC-1)", () => {
   it("常に候補の範囲内の整数インデックスを返す", () => {
