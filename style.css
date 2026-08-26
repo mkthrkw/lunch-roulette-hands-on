@@ -1,0 +1,261 @@
+:root {
+  --text-color: #4a3b3b;
+  --spin-color-1: #ff8a5c;
+  --spin-color-2: #ff5c8a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN",
+    "Yu Gothic", sans-serif;
+  color: var(--text-color);
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 32px 16px;
+  background: linear-gradient(135deg, #ffe3d0 0%, #ffd1e3 60%, #ffc6de 100%);
+}
+
+.card {
+  width: 100%;
+  max-width: 900px;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 20px 45px rgba(255, 120, 130, 0.25);
+  padding: 28px 24px 36px;
+}
+
+.app-title {
+  text-align: center;
+  margin: 4px 0 28px;
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+
+.layout {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "roulette"
+    "candidates";
+}
+
+@media (min-width: 769px) {
+  .layout {
+    grid-template-columns: 1fr 1.3fr;
+    grid-template-areas: "candidates roulette";
+    align-items: start;
+  }
+}
+
+.roulette-panel {
+  grid-area: roulette;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.candidates-panel {
+  grid-area: candidates;
+}
+
+.candidates-panel h2 {
+  margin: 0 0 12px;
+  font-size: 1.1rem;
+}
+
+.candidate-list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.candidate-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #fff6f2;
+  border-radius: 14px;
+  padding: 10px 14px;
+}
+
+.candidate-text {
+  font-size: 1rem;
+}
+
+.remove-button {
+  border: none;
+  background: #ffe1e1;
+  color: #a33;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.remove-button:hover:not(:disabled) {
+  background: #ffc9c9;
+  transform: scale(1.1);
+}
+
+.remove-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.add-form {
+  display: flex;
+  gap: 8px;
+}
+
+.add-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #f0d5d5;
+  font-size: 1rem;
+}
+
+.add-form input:focus {
+  outline: 2px solid var(--spin-color-2);
+}
+
+.add-form button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 12px;
+  background: #ffb1c8;
+  color: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.add-form button:hover {
+  background: #ff8fae;
+  transform: translateY(-1px);
+}
+
+.wheel-wrapper {
+  position: relative;
+  width: min(320px, 80vw);
+  aspect-ratio: 1 / 1;
+}
+
+.pointer {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-top: 22px solid #ff5c5c;
+  z-index: 3;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.2));
+}
+
+.wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.wheel-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 50%;
+}
+
+.wheel-label {
+  font-size: 15px;
+  font-weight: 700;
+  fill: #4a3b3b;
+}
+
+.spin-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  border: 4px solid #ffffff;
+  background: linear-gradient(135deg, var(--spin-color-1), var(--spin-color-2));
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(255, 92, 138, 0.45);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  z-index: 2;
+}
+
+.spin-button:hover:not(:disabled) {
+  transform: translate(-50%, -50%) scale(1.06);
+  box-shadow: 0 10px 22px rgba(255, 92, 138, 0.55);
+}
+
+.spin-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.result {
+  min-height: 76px;
+  text-align: center;
+  opacity: 0;
+}
+
+.result-line1 {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.result-line2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.result.visible {
+  animation: pop-in 0.4s ease-out forwards;
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

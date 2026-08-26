@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🍽️ ランチルーレット</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="page">
+  <div class="card">
+    <h1 class="app-title">🍽️ ランチルーレット</h1>
+    <div class="layout">
+      <section class="candidates-panel">
+        <h2>候補</h2>
+        <ul id="candidate-list" class="candidate-list"></ul>
+        <form id="add-form" class="add-form">
+          <input
+            id="candidate-input"
+            type="text"
+            placeholder="候補を追加 (例: 🍔 ハンバーガー)"
+            maxlength="20"
+            aria-label="候補を追加"
+          />
+          <button type="submit">追加</button>
+        </form>
+      </section>
+      <section class="roulette-panel">
+        <div class="wheel-wrapper">
+          <div class="pointer" aria-hidden="true"></div>
+          <div id="wheel" class="wheel"></div>
+          <button id="spin-button" class="spin-button" type="button">SPIN!</button>
+        </div>
+        <div id="result-display" class="result" aria-live="polite"></div>
+      </section>
+    </div>
+  </div>
+</div>
+<script src="roulette-logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
