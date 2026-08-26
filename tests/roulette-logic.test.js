@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   DEFAULT_CANDIDATES,
   MIN_CANDIDATES,
+  EXTRA_SPIN_TURNS,
   addCandidate,
   canRemove,
   removeCandidate,
@@ -66,6 +67,19 @@ describe("computeSpinRotation / getIndexAtRotation の整合性 (TC-5)", () => {
 
           currentRotation = rotation;
         }
+      }
+    }
+  });
+});
+
+describe("computeSpinRotation の回転量 (F-10)", () => {
+  it("「勢いよく回る」演出のため、毎回既定の周回数以上の回転を追加する", () => {
+    for (let count = 2; count <= 8; count++) {
+      for (let targetIndex = 0; targetIndex < count; targetIndex++) {
+        const currentRotation = 123.45; // 0以外の開始角度でも成立することを確認する
+        const rotation = computeSpinRotation(currentRotation, count, targetIndex);
+
+        expect(rotation - currentRotation).toBeGreaterThanOrEqual(EXTRA_SPIN_TURNS * 360);
       }
     }
   });

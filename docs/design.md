@@ -158,6 +158,7 @@ DOMを介さずロジックのみを検証する。
 | TC-3 | 候補が3件以上のとき`removeCandidate`が指定した候補を除いた配列を返すことを確認する | F-3 |
 | TC-4 | 候補が2件のとき`removeCandidate`を呼んでも件数が2件のまま変化しない（削除されない）ことを確認する | F-4 |
 | TC-5 | 候補数・目標indexの組み合わせを複数パターン用意し、`computeSpinRotation`の結果を`getIndexAtRotation`に渡すと常に元のtargetIndexと一致することを確認する | F-12 |
+| (追加) | `computeSpinRotation`が毎回`EXTRA_SPIN_TURNS`周分以上の回転を追加すること（「勢いよく回る」演出が成立する最低条件）を確認する | F-10 |
 
 `main.js`（DOM描画・イベント処理）は本設計では自動テストの対象外とし、
 手動での動作確認とする（要件のテスト対象はロジック部分のみのため）。
