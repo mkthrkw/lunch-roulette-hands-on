@@ -45,8 +45,10 @@ if (typeof module !== "undefined" && module.exports) {
 | `candidates` | `string[]` | 例: `["🍜 ラーメン", "🍛 カレー", ...]`。初期値6件 |
 | `rotation` | `number` | ルーレットに現在適用している累積回転角度（度） |
 | `isSpinning` | `boolean` | アニメーション中の多重クリック防止用 |
+| `history` | `string[]` | 直近の抽選結果。先頭が最新、最大5件（`MAX_HISTORY`） |
 
 候補は絵文字とテキストをまとめた1つの文字列として扱う（分割管理はしない＝過剰な抽象化を避ける）。
+履歴も同様に、選ばれた候補の文字列をそのまま保持する（日時などの付随情報は要件にないため持たない）。
 
 ## 4. `roulette-logic.js` の関数設計（テスト対象）
 
@@ -60,6 +62,8 @@ if (typeof module !== "undefined" && module.exports) {
 | `getSliceCenterAngle` | `(index, count) => number` | 該当区画の中心角（0度=真上、時計回り） |
 | `getLabelRotation` | `(centerAngle) => number` | ラベル用の回転角。中心角が90°〜270°の範囲（円の左半分）なら180°反転し、文字が逆さまにならないようにする |
 | `computeSpinRotation` | `(currentRotation, winningIndex, count, extraTurns) => number` | 「ポインター（真上・0度）に `winningIndex` の中心角が一致する」ことを保証する、`currentRotation` より大きい新しい累積回転角を返す |
+| `MAX_HISTORY` | 定数 `5` | 履歴として保持する最大件数 |
+| `addHistoryEntry` | `(history, text, limit = MAX_HISTORY) => string[]` | `text` を履歴の先頭に追加し、新しい配列を返す。件数が `limit` を超える分は末尾（＝古いもの）から切り捨てる |
 
 - `pickRandomIndex` と `computeSpinRotation` を分離することで、「選ばれた候補」と「停止位置」が同じ入力（winningIndex）から一意に計算され、矛盾が起きない構造にする（要件3.3・4.4に対応）。
 - `computeSpinRotation` は概ね次の式で角度を決める：
@@ -83,13 +87,15 @@ if (typeof module !== "undefined" && module.exports) {
   3. `computeSpinRotation(rotation, winningIndex, candidates.length, extraTurns)` で新しい回転角を計算（`extraTurns` は3〜5回転程度の固定値で「勢いよく回る」演出を作る）
   4. ホイール要素に `transform: rotate(新しい角度deg)` を設定し、CSS `transition`（`duration: 2.5s` 程度、`cubic-bezier` の減速イージング）で見た目のアニメーションを発生させる
   5. `transitionend` で `isSpinning` を解除し、結果表示エリアに当選候補を表示（CSSアニメーションで軽く拡大しながらフェードイン）
-- 実際の停止位置とロジック上の当選候補は同じ `winningIndex` に基づくため、演出（CSS）とデータ（JS）が食い違わない。
+  6. `addHistoryEntry(history, 当選候補, MAX_HISTORY)` で履歴を更新し、履歴リストを再描画する
+- 実際の停止位置とロジック上の当選候補は同じ `winningIndex` に基づくため、演出（CSS）とデータ（JS）が食い違わない。履歴に追加する値も同じ当選候補の文字列を使うため、結果表示・履歴・停止位置の3者に矛盾が生じない。
 
 ## 7. UI/レイアウト設計
 
 - 全体を薄いオレンジ〜ピンクのグラデーション背景の上に、白いカード（角丸・box-shadow）を中央配置。
-- PC幅（目安: 769px以上）は CSS Grid で2カラム：左＝候補リスト（追加フォーム＋削除可能なリスト）、右＝ルーレット＋SPINボタン＋結果表示。
+- PC幅（目安: 769px以上）は CSS Grid で2カラム：左＝候補リスト（追加フォーム＋削除可能なリスト）、右＝ルーレット＋SPINボタン＋結果表示＋抽選履歴。
 - スマホ幅（目安: 768px以下）は1カラムに切り替え、ルーレット関連を先に、候補リストをその下に配置する（要件で「メインはルーレット」とされているため）。
+- 抽選履歴は結果表示の下に、新しい順の縦並びリストとして表示する（例:「1. 🍣 寿司」〜「5. 🍜 ラーメン」）。まだ1回もスピンしていない場合は空欄（何も表示しない）でよい。
 - インタラクション：SPINボタン・削除ボタン・候補追加ボタンに `:hover` / `:active` のトランジション（拡大・色変化など軽微な変化）を付与する。
 - フォントは太字見出し＋読みやすい本文サイズのシステムフォントスタックを使用する。
 
@@ -106,6 +112,7 @@ if (typeof module !== "undefined" && module.exports) {
 | 候補削除ができる | `removeCandidate` で件数が1減り、対象要素が除去されることを確認（件数が3以上のケース） |
 | 2件未満には削除できない | 候補が2件のときに `removeCandidate` を呼んでも配列が変化しない（no-op）ことを確認 |
 | 選ばれた候補と停止位置が矛盾しない | 任意の `winningIndex`・`count` について、`computeSpinRotation` の結果角度を360で割った余りが `getSliceCenterAngle(winningIndex, count)` を真上（0度）に一致させることを検証 |
+| 抽選履歴が新しい順に直近5件まで保持される | `addHistoryEntry` を6回呼び出したとき、結果配列が5件に切り詰められ、先頭が最後に追加した値、末尾が2番目に追加した値（＝最初の1件が切り捨てられている）になることを確認 |
 
 `package.json` に既存の `vitest` をそのまま利用し、`npm test`（`vitest run`）で実行する。
 
@@ -117,6 +124,7 @@ if (typeof module !== "undefined" && module.exports) {
 - PC相当・スマホ相当の画面幅
 - `file://` で直接開いた状態
 - ルーレットのラベルの位置・向き・重なり、レイアウト崩れの有無
+- 複数回（6回以上）スピンし、抽選履歴が新しい順に直近5件だけ表示されること
 
 これは自動テストスイートとして常設するものではなく、実装内容が要件を満たしているかを目視確認する工程と位置づける（要件にない自動E2Eスイートの常設は行わない＝過剰な仕組みを避ける）。
 
