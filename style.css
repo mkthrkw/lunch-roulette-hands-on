@@ -259,3 +259,30 @@ body {
     transform: scale(1);
   }
 }
+
+.history {
+  width: 100%;
+  max-width: 320px;
+}
+
+.history h2 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  text-align: center;
+  color: #8a7a7a;
+}
+
+.history-list {
+  margin: 0;
+  padding: 0 0 0 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.history-item {
+  font-size: 0.95rem;
+  background: #fff6f2;
+  border-radius: 10px;
+  padding: 6px 10px;
+}

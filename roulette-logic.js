@@ -2,6 +2,7 @@
 // ブラウザでは window.RouletteLogic として、Vitest（Node）では module.exports として利用できる。
 
 const MIN_CANDIDATES = 2;
+const MAX_HISTORY = 5;
 
 function addCandidate(candidates, text) {
   const trimmed = typeof text === "string" ? text.trim() : "";
@@ -61,8 +62,15 @@ function computeSpinRotation(currentRotation, winningIndex, count, extraTurns) {
   return newRotation;
 }
 
+// 新しい結果を履歴の先頭に追加し、limit件を超える古いものは切り捨てる。
+function addHistoryEntry(history, text, limit) {
+  const max = typeof limit === "number" ? limit : MAX_HISTORY;
+  return [text, ...history].slice(0, max);
+}
+
 const RouletteLogic = {
   MIN_CANDIDATES,
+  MAX_HISTORY,
   addCandidate,
   removeCandidate,
   pickRandomIndex,
@@ -70,6 +78,7 @@ const RouletteLogic = {
   getSliceCenterAngle,
   getLabelRotation,
   computeSpinRotation,
+  addHistoryEntry,
 };
 
 if (typeof module !== "undefined" && module.exports) {

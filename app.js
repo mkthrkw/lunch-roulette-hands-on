@@ -19,6 +19,7 @@
   let candidates = ["🍜 ラーメン", "🍛 カレー", "🍣 寿司", "🍝 パスタ", "🍱 定食", "🍲 うどん"];
   let rotation = 0;
   let isSpinning = false;
+  let history = [];
 
   const listEl = document.getElementById("candidate-list");
   const formEl = document.getElementById("add-form");
@@ -26,6 +27,7 @@
   const wheelEl = document.getElementById("wheel");
   const spinButton = document.getElementById("spin-button");
   const resultEl = document.getElementById("result-display");
+  const historyListEl = document.getElementById("history-list");
 
   function escapeXml(str) {
     return str
@@ -58,7 +60,18 @@
   function render() {
     renderList();
     renderWheel();
+    renderHistory();
     formEl.querySelector("button[type=submit]").disabled = isSpinning;
+  }
+
+  function renderHistory() {
+    historyListEl.innerHTML = "";
+    history.forEach((text) => {
+      const li = document.createElement("li");
+      li.className = "history-item";
+      li.textContent = text;
+      historyListEl.appendChild(li);
+    });
   }
 
   function renderList() {
@@ -197,6 +210,7 @@
       }
       svgEl.removeEventListener("transitionend", handleTransitionEnd);
       isSpinning = false;
+      history = logic.addHistoryEntry(history, candidates[winningIndex], logic.MAX_HISTORY);
       // スピン後の回転角を基準にラベルの向きを再計算するため再描画する。
       // ジオメトリは同一なので見た目の飛びは発生しない。
       render();
